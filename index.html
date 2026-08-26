@@ -80,7 +80,7 @@
 
                 mixer = new THREE.AnimationMixer( object );
                 
-                // Mapeo directo y seguro de la caminata en el índice 0 del gltf
+                // Mapeo directo de la caminata en el índice 0 del gltf
                 const action = mixer.clipAction( gltf.animations[ 0 ] );
                 action.play();
 
@@ -98,6 +98,10 @@
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
+            
+            // CORRECCIÓN PROFUNDA PARA ARCHIVOS .GLB: Habilita el espacio de color e iluminación para mallas estándar de Unity
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            
             renderer.xr.enabled = true;
             container.appendChild( renderer.domElement );
 
