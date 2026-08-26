@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - equirectangular video panorama</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			body {
+				touch-action: none;
+			}
+		</style>
+	</head>
+	<body>
+
+		<!-- Import maps polyfill -->
+		<!-- Remove this when import maps will be widely supported -->
+		<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import { ARButton } from 'three/addons/webxr/ARButton.js';
+			
+			//Add this for stats animation
+			import Stats from 'three/addons/libs/stats.module.js';
+			import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+
+			//
+			let camera, scene, renderer, stats; 
+			let controller;
+
+			//Add clock
+			const clock = new THREE.Clock();
+
+			//Add Mixer
+			let mixer;
+
+			init();
+			animate();
+
+			function init() {
+
+				const container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+
+				scene.add( new THREE.HemisphereLight( 0xa5a5a5, 0x898989, 3 ) );
+
+				const light = new THREE.DirectionalLight( 0xffffff, 3 );
+				light.position.set( 1, 1, 1 ).normalize();
+				scene.add( light );
+				//Load GLTF Model
+
+				new GLTFLoader()
+					.setPath( 'models/gltf/' )
+					.load( 'Nave.gltf', function ( gltf ) {
+
+						gltf.scene.scale.set(.003, .003, .003);
+						gltf.scene.position.x = -0.8;
+						gltf.scene.position.y = 0.3;
+						gltf.scene.position.z = -1.5;
+
+						scene.add( gltf.scene );
+
+					} );
+
+
+				// Load FBX Model and Animation
+
+				const loader = new FBXLoader();
+				loader.load( 'models/fbx/Lenador.fbx', function ( object ) {
+
+					// Add scale and transform
+
+					object.scale.set(.004, .004, .004);
+					object.position.x = 0.8;
+					object.position.y = -0.5;
+					object.position.z = -1.5;
+//					object.rotation.y = Math.PI / 2;   // Rotando 90
+
+					mixer = new THREE.AnimationMixer( object );
+
+					const action = mixer.clipAction( object.animations[ 4] );
+					action.play();
+
+					object.traverse( function ( child ) {
+
+						if ( child.isMesh ) {
+
+							child.castShadow = true;
+							child.receiveShadow = true;
+
+						}
+
+					} );
+
+					scene.add( object );
+
+				} );
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.xr.enabled = true;
+				container.appendChild( renderer.domElement );
+
+				// ADD stats
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				//
+
+				document.body.appendChild( ARButton.createButton( renderer ) );
+
+
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			// 
+
+			function animate() {
+
+				const delta = clock.getDelta();
+
+				if ( mixer ) mixer.update( delta );
+
+				stats.update();
+
+				render();
+
+			}
+
+			renderer.setAnimationLoop( animate );
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+		</script>
+	</body>
+</html>
