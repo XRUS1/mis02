@@ -77,12 +77,13 @@
                 object.position.y = -0.5;
                 object.position.z = -1.5;
                 // object.rotation.y = Math.PI / 2; // Rotando 90
-                // Modificado aquí
+
                 mixer = new THREE.AnimationMixer( object );
-                // Lee de forma segura la animación de caminata nativa del archivo integrado
-                const action = mixer.clipAction( object.animations[ 0 ] || gltf.animations[ 0 ] );
-                action.play();                
-                // Fin modificación 
+                
+                // Mapeo directo y seguro de la caminata en el índice 0 del gltf
+                const action = mixer.clipAction( gltf.animations[ 0 ] );
+                action.play();
+
                 object.traverse( function ( child ) {
                     if ( child.isMesh ) {
                         child.castShadow = true;
