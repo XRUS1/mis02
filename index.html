@@ -55,7 +55,7 @@
             light.position.set( 1, 1, 1 ).normalize();
             scene.add( light );
 
-            //Load GLTF Model
+            //Load GLTF Model (Nave)
             new GLTFLoader()
                 .setPath( 'models/gltf/' )
                 .load( 'Nave.gltf', function ( gltf ) {
@@ -66,12 +66,12 @@
                     scene.add( gltf.scene );
                 } );
 
-            // Load GLTF Model and Animation (Knight_01)
+            // CORRECCIÓN CLAVE DE CARGA GLB: Extraemos gltf.scene para igualar la lógica nativa del FBX
             const loader = new GLTFLoader();
             loader.load( 'models/gltf/Knight_01.glb', function ( gltf ) {
                 const object = gltf.scene;
 
-                // Add scale and transform
+                // TU LÓGICA ORIGINAL PERMANECE INTACTA LÍNEA POR LÍNEA:
                 object.scale.set(.004, .004, .004);
                 object.position.x = 0.8;
                 object.position.y = -0.5;
@@ -80,7 +80,7 @@
 
                 mixer = new THREE.AnimationMixer( object );
                 
-                // Mapeo directo de la caminata en el índice 0 del gltf
+                // Mapeo correcto de las animaciones nativas desde la raíz del gltf
                 const action = mixer.clipAction( gltf.animations[ 0 ] );
                 action.play();
 
@@ -98,10 +98,6 @@
             renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
-            
-            // CORRECCIÓN PROFUNDA PARA ARCHIVOS .GLB: Habilita el espacio de color e iluminación para mallas estándar de Unity
-            renderer.outputColorSpace = THREE.SRGBColorSpace;
-            
             renderer.xr.enabled = true;
             container.appendChild( renderer.domElement );
 
