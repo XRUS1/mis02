@@ -55,7 +55,7 @@
             light.position.set( 1, 1, 1 ).normalize();
             scene.add( light );
 
-            //Load GLTF Model (Nave)
+            //Load GLTF Model
             new GLTFLoader()
                 .setPath( 'models/gltf/' )
                 .load( 'Nave.gltf', function ( gltf ) {
@@ -66,21 +66,19 @@
                     scene.add( gltf.scene );
                 } );
 
-            // CORRECCIÓN CLAVE DE CARGA GLB: Extraemos gltf.scene para igualar la lógica nativa del FBX
+            // Load GLTF Model and Animation (Knight_01)
             const loader = new GLTFLoader();
             loader.load( 'models/gltf/Knight_01.glb', function ( gltf ) {
                 const object = gltf.scene;
 
-                // TU LÓGICA ORIGINAL PERMANECE INTACTA LÍNEA POR LÍNEA:
-                object.scale.set(.004, .004, .004);
+                // CORRECCIÓN DEFINITIVA DE ESCALA: Al ser .glb corregido de Unity, se usa escala real 1
+                object.scale.set(1, 1, 1);
                 object.position.x = 0.8;
                 object.position.y = -0.5;
                 object.position.z = -1.5;
                 // object.rotation.y = Math.PI / 2; // Rotando 90
 
                 mixer = new THREE.AnimationMixer( object );
-                
-                // Mapeo correcto de las animaciones nativas desde la raíz del gltf
                 const action = mixer.clipAction( gltf.animations[ 0 ] );
                 action.play();
 
